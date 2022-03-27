@@ -27,7 +27,7 @@ public class Dog : MonoBehaviour
                 rigid.velocity = transform.TransformDirection(Vector2.right * managerLink.inimigoVelocidade);
             }
             
-            Destroy(gameObject, 5);
+            Destroy(gameObject, 20);
         }
     }
 

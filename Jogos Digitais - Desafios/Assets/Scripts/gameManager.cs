@@ -24,21 +24,30 @@ public class gameManager : MonoBehaviour
     public Transform[] spawns;
     public GameObject[] dogPrefab;
 
-    //aviso de nova wave
-    public Text textoDeWave;
+    //Elementos de UI
+    public Text textoDeWave, textoScore, textoHighscore;
+    public GameObject painelPause, painelGameOver;
+
+    //Variáveis de Score
+
+    public float score;
+    
 
 
     void Start()
     {
+        score = 0;
+        textoHighscore.text = "Highscore: " +Mathf.RoundToInt(PlayerPrefs.GetFloat("highscore", 0));
         nivelDeJogo = 0;
         StartCoroutine("NovaWave");
+        rolandoWave = true;
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        
+        UpdateScore();
         // parar de spawnar e contar o tempo entre as waves
         if(tempoWaveAtual <= 0 )
         {
@@ -54,6 +63,7 @@ public class gameManager : MonoBehaviour
         // contadores de tempo diminuir
         if(rolandoWave)
         {
+            score += Time.deltaTime * 10;
             spawnTime -= Time.deltaTime;
             tempoWaveAtual -= Time.deltaTime;
         }
@@ -76,30 +86,47 @@ public class gameManager : MonoBehaviour
         //definir o tempo de spawn baseado no nível de jogo
         spawnTime = temposDeSpawn[nivelDeJogo];
         //definir variavel avisando que iniciou uma nova wave
-        rolandoWave = true;
+        //rolandoWave = true;
     }
 
     IEnumerator NovaWave()
     {
-        //rotina que define o nome da nova wave, faz aparecer o texto por 3 segundos e depois inicia a próxima wave
+        //rotina que define o nome da nova wave, faz aparecer o texto por 6 segundos e depois inicia a próxima wave
         IniciandoWave();
         textoDeWave.text = "Wave " + (nivelDeJogo+1);
         textoDeWave.gameObject.SetActive(true);
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(6);
         textoDeWave.gameObject.SetActive(false);
         rolandoWave = true;
     }
 
 
-    public void Reiniciar(){
-        StartCoroutine("NovoJogo");
+    public void GameOver(){
+        Time.timeScale = 0;
+        painelGameOver.SetActive(true);
     }
 
-      IEnumerator NovoJogo()
-    {
 
-        yield return new WaitForSeconds(1);
-        Application.LoadLevel("SampleScene");
-    
+    public void Pausar(){
+        Time.timeScale = 0;
+        painelPause.SetActive(true);
+    }
+
+    public void Despausar(){
+        Time.timeScale = 1;
+        painelPause.SetActive(false);
+    }
+
+    public void Recomeçar(){
+        Time.timeScale = 1;
+        Application.LoadLevel("Game");
+    }
+
+    public void UpdateScore(){
+        textoScore.text = "Score: " +Mathf.RoundToInt(score);
+        if(score > PlayerPrefs.GetFloat("highscore", 0)){
+            PlayerPrefs.SetFloat("highscore", score);
+        }
+        textoHighscore.text = "Highscore: " +Mathf.RoundToInt(PlayerPrefs.GetFloat("highscore", 0));
     }
 }

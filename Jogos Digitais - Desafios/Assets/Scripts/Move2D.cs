@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Move2D : MonoBehaviour
 {
@@ -20,6 +21,12 @@ public class Move2D : MonoBehaviour
 
     public gameManager managerLink;
 
+    float reloadTime;
+
+    public Image reloadBar;
+
+    public AudioSource somGato;
+
     
     // Start is called before the first frame update
     void Start()
@@ -37,6 +44,12 @@ public class Move2D : MonoBehaviour
 
         taNoChao = Physics2D.OverlapCircle(detactaChao.position, 0.2f, oQueEChao);
         anime.SetBool("noChao", taNoChao);
+        UpdateBar();
+
+        if(reloadTime > 0)
+        {
+            reloadTime -= Time.deltaTime;
+        }
 
         if (direction != 0)
         {
@@ -73,7 +86,7 @@ public class Move2D : MonoBehaviour
 
     void atirarBola(){
 
-        if(Input.GetButtonDown("Fire1")){
+        if(Input.GetButtonDown("Fire1") && reloadTime <= 0){
             Rigidbody2D clone = Instantiate(bola, spawnBola.position, transform.rotation);
 
             if(transform.localScale.x < 0 )
@@ -85,6 +98,8 @@ public class Move2D : MonoBehaviour
                 clone.velocity = transform.TransformDirection(Vector2.right * 10);
             }
             
+            somGato.Play();
+            reloadTime = 3;
             Destroy(clone, 5);
         }
     }
@@ -94,9 +109,12 @@ public class Move2D : MonoBehaviour
            // Destroy(other.gameObject);
             //Destroy(gameObject, 0.05f);
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
-            managerLink.Reiniciar();
+            managerLink.GameOver();
         }
     }
 
+    void UpdateBar(){
+        reloadBar.fillAmount = reloadTime / 3;
+    }
 
 }
